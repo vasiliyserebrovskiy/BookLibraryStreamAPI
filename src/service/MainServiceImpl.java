@@ -8,6 +8,9 @@ import repository.UserRepository;
 import utils.MyList;
 import utils.UserValidation;
 
+import java.util.List;
+import java.util.Optional;
+
 
 public class MainServiceImpl implements MainService {
 
@@ -25,19 +28,24 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public User createUser(String email, String password) {
-        // проверяем валидность эмеил
-        if (!UserValidation.isEmailValid(email)) {
+
+        // TODO: Переписать метод в процессе переписывания процессов валидации
+        // проверяем валидность email
+        if (!UserValidation.isEmailValid(email)) { // TODO: Переделать валидацию
             return null;
         }
-        // проверяем существует ли пользователь с таким эмеил
-        if (userRepository.isEmailExist(email)) {
+        // проверяем существует ли пользователь с таким email
+        User user = userRepository.getUserByEmail(email);
+
+        if (user != null) {
             return null;
         }
         // проверяем валидность пароля
-        if (!UserValidation.isPasswordValid(password)) {
+        if (!UserValidation.isPasswordValid(password)) { //TODO: Переделать валидацию
             return null;
         }
         // создаем юзера
+
         return userRepository.addUser(email, password);
     }
 
@@ -48,17 +56,18 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public User getUserById(int id) {
-        return userRepository.getUserById(id);
+        Optional<User> user = userRepository.getUserById(id);
+        return user.orElse(null);
     }
 
     @Override
-    public MyList<User> getAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.getAllUsers();
     }
 
     @Override
     public User updatePassword(String newPassword) {
-        // валидность пароля
+        // валидность пароля TODO: переписать после исправления процесса валидации
         if (!UserValidation.isPasswordValid(newPassword)) {
             return null;
         }
@@ -66,82 +75,59 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public boolean deleteUser(String email) {
-        // проверка на Админа
-        if (activeUser.getRole() != Role.ADMIN) {
-            return false;
+    public User deleteUser(String email) {
+        if (activeUser.getRole() == Role.ADMIN) {
+            User user = userRepository.getUserByEmail(email);
+            if (user != null) {
+                return userRepository.deleteUser(email);
+            }
         }
-        // проверю валидность
-        if (!UserValidation.isEmailValid(email)) {
-            return false;
-        }
-        // проверка в репозитории
-        User user = userRepository.getUserByEmail(email);
-        if (user == null) {
-            return false;
-        }
-        return userRepository.deleteUser(email);
+        return null;
     }
 
     @Override
     public User blockUser(String email) {
-        if (activeUser.getRole() != Role.ADMIN) {
-            return null;
+
+        if (activeUser.getRole() == Role.ADMIN) {
+            User user = userRepository.getUserByEmail(email);
+            if (user != null) {
+                return userRepository.blockUser(email);
+            }
         }
-        if (!UserValidation.isEmailValid(email)) {
-            return null;
-        }
-        User user = userRepository.getUserByEmail(email);
-        if (user == null) {
-            return null;
-        }
-        return userRepository.blockUser(email);
+        return null;
     }
 
     @Override
     public User blockUser(int userId) {
-        if (activeUser.getRole() != Role.ADMIN) {
-            return null;
+        if (userId > 0 && activeUser.getRole() == Role.ADMIN) {
+            Optional<User> user = userRepository.getUserById(userId);
+            if (user.isPresent()) {
+                return userRepository.blockUser(userId).get(); // уже проверили существование usrId
+            }
         }
-        if (userId <= 0) {
-            return null;
-        }
-
-        User user = userRepository.getUserById(userId);
-        if (user == null) {
-            return null;
-        }
-        return userRepository.blockUser(userId);
+        return null;
     }
 
     @Override
     public User unblockUser(String email) {
-        if (activeUser.getRole() != Role.ADMIN) {
-            return null;
+        if (activeUser.getRole() == Role.ADMIN) {
+            User user = userRepository.getUserByEmail(email);
+            if (user != null) {
+                return userRepository.unblockUser(email);
+            }
         }
-        if (!UserValidation.isEmailValid(email)) {
-            return null;
-        }
-        User user = userRepository.getUserByEmail(email);
-        if (user == null) {
-            return null;
-        }
-        return userRepository.unblockUser(email);
+        return null;
     }
 
     @Override
     public User unblockUser(int userId) {
-        if (activeUser.getRole() != Role.ADMIN) {
-            return null;
+        if (userId > 0 && activeUser.getRole() == Role.ADMIN) {
+            Optional<User> user = userRepository.getUserById(userId);
+            if (user.isPresent()) {
+                return userRepository.unblockUser(userId).get();
+            }
         }
-        if (userId <= 0) {
-            return null;
-        }
-        User user = userRepository.getUserById(userId);
-        if (user == null) {
-            return null;
-        }
-        return userRepository.unblockUser(userId);
+        return null;
     }
 
     @Override
@@ -150,33 +136,28 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public User giveUserAdminRole(int id) {
-        if (activeUser == null && activeUser.getRole() != Role.ADMIN) {
-            return null;
+    public User giveUserAdminRole(int userId) {
+        if (userId > 0) {
+            if (activeUser != null && activeUser.getRole() == Role.ADMIN) {
+                Optional<User> user = userRepository.getUserById(userId);
+                if (user.isPresent()) {
+                    return userRepository.giveUserAdminRole(userId).get();
+                }
+            }
         }
-        User user = userRepository.getUserById(id);
-        if (user != null && user.getRole() == Role.ADMIN) {
-            return null;
-        }
-        return userRepository.giveUserAdminRole(id);
+        return null;
     }
 
     @Override
     public boolean login(String email, String password) {
-        // валидность почты и пароля
-        if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
-            return false;
-        }
-        // получаем пользователя
-        User user = userRepository.getUserByEmail(email);
-        if (user == null) {
-            return false;
-        }
-        // сверяем пароль с репозиторием
-        if (user.getPassword().equals(password)) {
-            // делаем пользователя активным
-            activeUser = user;
-            return true;
+        if (email != null && !email.isEmpty() && password != null && !password.isEmpty()) {
+            User user = userRepository.getUserByEmail(email);
+            if (user != null) {
+                if (user.getPassword().equals(password)) {
+                    activeUser = user;
+                    return true;
+                }
+            }
         }
         return false;
     }

@@ -4,6 +4,8 @@ import model.Book;
 import model.User;
 import utils.MyList;
 
+import java.util.List;
+
 public interface MainService {
     // Методу по работе с пользователем
 
@@ -15,11 +17,11 @@ public interface MainService {
 
     User getUserById(int id);
 
-    MyList<User> getAllUsers(); // Для отображения всех зарегистрированных пользователей
+    List<User> getAllUsers(); // Для отображения всех зарегистрированных пользователей
 
     User updatePassword(String newPassword); //++
 
-    boolean deleteUser(String email);
+    User deleteUser(String email);
 
     User giveUserAdminRole(int id);
 

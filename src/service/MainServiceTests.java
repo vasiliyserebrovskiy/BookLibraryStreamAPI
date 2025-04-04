@@ -16,6 +16,7 @@ import repository.UserRepository;
 import repository.UserRepositoryImpl;
 import utils.MyList;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -148,7 +149,7 @@ public class MainServiceTests {
     //Тестируем метод getAllUsers
     @Test
     void testGetAllUsers() {
-        MyList<User> users = service.getAllUsers();
+        List<User> users = service.getAllUsers();
         assertNotNull(users);
     }
 
@@ -200,9 +201,9 @@ public class MainServiceTests {
     void testValidDeleteUser(String email){
         service.login("1","1");
 
-        boolean isDelete = service.deleteUser(email);
-        assertEquals(true, isDelete);
-        User user = service.getUserByEmail(email);
+        User user = service.deleteUser(email);
+        assertNotNull(user);
+        user = service.getUserByEmail(email);
         assertNull(user);
     }
 
@@ -210,8 +211,8 @@ public class MainServiceTests {
     @ValueSource(strings = {"user33@example.com","user44@example.com"})
     void testNotValidDeleteUser(String email){
         service.login("1","1");
-        boolean isDelete = service.deleteUser(email);
-        assertEquals(false, isDelete);
+        User user = service.deleteUser(email);
+        assertNull(user);
 
     }
 

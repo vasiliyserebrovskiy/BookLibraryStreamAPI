@@ -8,7 +8,6 @@ public class User {
     private String email; // Для авторизации
     private String password; // Для авторизации
     private final int userId; // Для поиска пользователя по id
-    //private String name;
     private Role role;
 
     public User(int userId, String email, String password, Role role) {

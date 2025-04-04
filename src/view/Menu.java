@@ -6,6 +6,7 @@ import model.User;
 import service.MainService;
 import utils.MyList;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
@@ -573,8 +574,8 @@ public class Menu {
             case 8:
                 System.out.println("Введите email пользователя для удаления: ");
                 String email = scanner.nextLine();
-                boolean delResult = service.deleteUser(email);
-                if (delResult) {
+                user = service.deleteUser(email);
+                if (user != null) {
                     printOkMessage("Пользователь с email " + email + " успешно удален. ");
                 } else {
                     printErrorMessage("Не удалось найти пользователя. ");
@@ -711,7 +712,7 @@ public class Menu {
     }
 
     // Печать пользователей
-    private void showUsersList(MyList<User> users) {
+    private void showUsersList(List<User> users) {
         for (User user : users) {
             System.out.printf("Id: %d | E-mail: %s | Роль: %s\n", user.getUserId(), user.getEmail(), user.getRole());
         }
