@@ -125,7 +125,7 @@ public class Menu {
     }
 
     private void handleBookMenuInput(int input) {
-        MyList<Book> books;
+        List<Book> books;
         String bookStrId;
 
         switch (input) {
@@ -705,7 +705,7 @@ public class Menu {
     }
 
     // Печать книг
-    private void showBooksList(MyList<Book> books) {
+    private void showBooksList(List<Book> books) {
         for (Book book : books) {
             System.out.printf("Id: %d | Название: %s | Автор: %s | Год издания: %s | Жанр: %s\n", book.getId(), book.getTitle(), book.getAuthor(), book.getDateYear(), book.getBookGenre());
         }

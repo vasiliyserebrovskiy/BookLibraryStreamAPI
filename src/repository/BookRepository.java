@@ -4,23 +4,25 @@ import model.Book;
 import model.User;
 import utils.MyList;
 
+import java.util.List;
+
 public interface BookRepository {
 
     Book addBook(String title, String author, String dateYear, String bookGenre);
 
     Book getBookById(int id);
 
-    MyList<Book> getAllBooks();
+    List<Book> getAllBooks();
 
-    MyList<Book> getAvailableBooks();
+    List<Book> getAvailableBooks();
 
-    MyList<Book> getBorrowedBooks();
+    List<Book> getBorrowedBooks();
 
-    MyList<Book> getMyBooks(User user);
+    List<Book> getMyBooks(User user);
 
-    MyList<Book> getBooksByTitle(String title); // contains
+    List<Book> getBooksByTitle(String title); // contains
 
-    MyList<Book> getBooksByAuthor(String author); // contains
+    List<Book> getBooksByAuthor(String author); // contains
 
     Book userGetBook(int id, User user);
 

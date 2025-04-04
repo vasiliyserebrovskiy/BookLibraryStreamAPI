@@ -40,21 +40,21 @@ public interface MainService {
     User blockUser(int userId);
 
     // Методы по работе с книгами
-    MyList<Book> getAllBooks(); //++
+    List<Book> getAllBooks(); //++
 
-    MyList<Book> getAvailableBooks(); //++
+    List<Book> getAvailableBooks(); //++
 
-    MyList<Book> getBorrowedBooks(); //++
+    List<Book> getBorrowedBooks(); //++
 
-    MyList<Book> getMyBooks(); //++
+    List<Book> getMyBooks(); //++
 
     Book createBook(String title, String author, String dateYear, String bookGenre); //++
 
     Book getBookById(int id); //++
 
-    MyList<Book> getBooksByTitle(String title); // contains
+    List<Book> getBooksByTitle(String title); // contains
 
-    MyList<Book> getBooksByAuthor(String author); // contains
+    List<Book> getBooksByAuthor(String author); // contains
 
     // Взять книгу из библиотеки
     Book userGetBook(int bookId);

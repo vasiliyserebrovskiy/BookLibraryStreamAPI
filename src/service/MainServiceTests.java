@@ -477,7 +477,7 @@ public class MainServiceTests {
     // ТЕСТЫ МЕТОДОВ ПО КНИГАМ
     @Test
     void testGetAllBook() {
-        MyList<Book> books = service.getAllBooks();
+        List<Book> books = service.getAllBooks();
         assertNotNull(books);
     }
 
@@ -489,7 +489,7 @@ public class MainServiceTests {
         Book book2 = service.userGetBook(7);
 //        System.out.println(book);
 //        System.out.println(book2);
-        MyList<Book> books = service.getAvailableBooks();
+        List<Book> books = service.getAvailableBooks();
 
         assertEquals(9, books.size());
     }
@@ -499,11 +499,11 @@ public class MainServiceTests {
         boolean login = service.login("user2@example.com", "Secure*987");
         //System.out.println(login);
 
-        MyList<Book> books = service.getAllBooks();
+        List<Book> books = service.getAllBooks();
         for (int i = 1; i <= books.size(); i++) {
             service.userGetBook(i);
         }
-        MyList<Book> availabldeBook = service.getAvailableBooks();
+        List<Book> availabldeBook = service.getAvailableBooks();
         assertEquals(0, availabldeBook.size());
     }
 
@@ -511,7 +511,7 @@ public class MainServiceTests {
     @Test
     void testGetBorrowedBooks() {
         boolean login = service.login("user2@example.com", "Secure*987");
-        MyList<Book> borrowedBook = service.getBorrowedBooks();
+        List<Book> borrowedBook = service.getBorrowedBooks();
         assertEquals(0, borrowedBook.size());
     }
 
@@ -520,7 +520,7 @@ public class MainServiceTests {
         boolean login = service.login("user2@example.com", "Secure*987");
         Book book = service.userGetBook(1);
         Book book2 = service.userGetBook(7);
-        MyList<Book> borrowedBook = service.getBorrowedBooks();
+        List<Book> borrowedBook = service.getBorrowedBooks();
 
         assertEquals(2, borrowedBook.size());
     }
@@ -529,7 +529,7 @@ public class MainServiceTests {
     @Test
     void testGetMyBook() {
         boolean login = service.login("user2@example.com", "Secure*987");
-        MyList<Book> borrowedBook = service.getMyBooks();
+        List<Book> borrowedBook = service.getMyBooks();
 
         assertEquals(0, borrowedBook.size());
     }
@@ -540,7 +540,7 @@ public class MainServiceTests {
         Book book = service.userGetBook(1);
         Book book2 = service.userGetBook(7);
         Book book3 = service.userGetBook(8);
-        MyList<Book> borrowedBook = service.getMyBooks();
+        List<Book> borrowedBook = service.getMyBooks();
 
         assertEquals(3, borrowedBook.size());
     }

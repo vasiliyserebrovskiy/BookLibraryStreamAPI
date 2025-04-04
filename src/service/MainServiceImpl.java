@@ -195,22 +195,22 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public MyList<Book> getAllBooks() {
+    public List<Book> getAllBooks() {
         return bookRepository.getAllBooks();
     }
 
     @Override
-    public MyList<Book> getAvailableBooks() {
+    public List<Book> getAvailableBooks() {
         return bookRepository.getAvailableBooks();
     }
 
     @Override
-    public MyList<Book> getBorrowedBooks() {
+    public List<Book> getBorrowedBooks() {
         return bookRepository.getBorrowedBooks();
     }
 
     @Override
-    public MyList<Book> getBooksByTitle(String title) {
+    public List<Book> getBooksByTitle(String title) {
         if (!title.isEmpty()) {
             return bookRepository.getBooksByTitle(title);
         }
@@ -218,7 +218,7 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public MyList<Book> getBooksByAuthor(String author) {
+    public List<Book> getBooksByAuthor(String author) {
         if (!author.isEmpty()) {
             return bookRepository.getBooksByAuthor(author);
         }
@@ -245,7 +245,7 @@ public class MainServiceImpl implements MainService {
         Book book;
         if (bookId > 0) {
             book = bookRepository.getBookById(bookId);
-            if (book != null && book.getReadingUser().equals(activeUser)) {
+            if (book != null && book.getReadingUser() != null && book.getReadingUser().equals(activeUser)) {
                 book = bookRepository.userReturnBook(bookId);
                 return book;
             }
@@ -268,7 +268,7 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public MyList<Book> getMyBooks() {
+    public List<Book> getMyBooks() {
         return bookRepository.getMyBooks(activeUser);
     }
 
