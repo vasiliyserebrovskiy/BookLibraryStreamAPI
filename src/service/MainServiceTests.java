@@ -273,7 +273,7 @@ public class MainServiceTests {
 
         // Пользователь должен быть залогиненым, для смены пароля
         boolean isLogin = service.login(email, password); // логинемся
-        assertEquals(true, isLogin);
+        assertTrue(isLogin);
         assertNotNull(service.getActiveUser());
     }
 
@@ -291,7 +291,7 @@ public class MainServiceTests {
 
         // Пользователь должен быть залогиненым, для смены пароля
         boolean isLogin = service.login(email, password); // логинемся
-        assertEquals(false, isLogin);
+        assertFalse(isLogin);
         assertNull(service.getActiveUser());
     }
 
