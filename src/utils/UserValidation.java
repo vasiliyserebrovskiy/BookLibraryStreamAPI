@@ -6,21 +6,23 @@ package utils;
  */
 public class UserValidation {
 
-    public static boolean isEmailValid(String email) {
-        if (email == null) return false;
+    public static void validateEmail(String email) throws EmailValidateException {
+
+        // throw - ключевое слово, используется для явного выброса исключения
+        if (email == null) throw new EmailValidateException("email should be not null");
 
         // 1. Собака
         int indexAt = email.indexOf('@');
         int lastAt = email.lastIndexOf('@');
-        if (indexAt == -1 || indexAt != lastAt) return false;
+        if (indexAt == -1 || indexAt != lastAt) throw new EmailValidateException("@ error");
 
         //2. Точка после собаки
         int dotIndexAfterAt = email.indexOf('.', (indexAt + 1));
-        if (indexAt + 1 == dotIndexAfterAt) return false;
+        if (indexAt + 1 == dotIndexAfterAt) throw new EmailValidateException(". after @");
 
         //3. После точки два символа
         int lastDotIndex = email.lastIndexOf('.');
-        if (lastDotIndex >= email.length() - 2) return false;
+        if (lastDotIndex >= email.length() - 2) throw new EmailValidateException("last . error");
 
         //4. Алфавит
         for (char ch : email.toCharArray()) {
@@ -28,29 +30,26 @@ public class UserValidation {
             boolean isPass = Character.isAlphabetic(ch) || Character.isDigit(ch)
                     || ch == '-' || ch == '_' || ch == '.' || ch == '@';
 
-            if (!isPass) return false;
+            if (!isPass) throw new EmailValidateException("Illegal symbol");
         }
         //5. до собаки должен быть хотя бы один символ
-        if (indexAt == 0) return false;
+        if (indexAt == 0) throw new EmailValidateException("no character before @");
 
         //6. Первый символ не число
-        if (!Character.isAlphabetic(email.charAt(0))) return false;
+        if (!Character.isAlphabetic(email.charAt(0))) throw new EmailValidateException("first symbol should be letter");
 
-        return true;
     }
 
-    public static boolean isPasswordValid(String password) {
-        if (password == null || password.length() < 8) return false;
+    public static void validatePassword(String password) throws PasswordValidateException {
+        if (password == null) throw new PasswordValidateException("Password is null");
+        if (password.length() < 8) throw new PasswordValidateException("Error length");
 
-        // boolean isLength = password.length() >= 8;
-        boolean isDigit = false;
-        boolean isLowerChar = false;
-        boolean isUpperChar = false;
-        boolean isSpecialSymbol = false;
+        boolean isDigit = false,
+                isLowerChar = false,
+                isUpperChar = false,
+                isSpecialSymbol = false;
+
         String specialSymbols = "!#%$@&*()[],.-";
-
-        // альтернативный вариант объявления переменных
-        boolean[] result = new boolean[4]; // false,false,false,false по умолчанию при создании
 
         for (char ch : password.toCharArray()) {
             if (Character.isDigit(ch)) isDigit = true;
@@ -59,9 +58,11 @@ public class UserValidation {
             if (specialSymbols.indexOf(ch) >= 0) isSpecialSymbol = true;
         }
 
-        return isDigit && isLowerChar && isUpperChar && isSpecialSymbol;
+        if (!isDigit) throw new PasswordValidateException("No digits");
+        if (!isLowerChar) throw new PasswordValidateException("No lowercase symbols");
+        if (!isUpperChar) throw new PasswordValidateException("No uppercase symbols");
+        if (!isSpecialSymbol) throw new PasswordValidateException("No special symbols");
     }
-
 
 
 }

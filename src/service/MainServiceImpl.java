@@ -5,7 +5,8 @@ import model.Role;
 import model.User;
 import repository.BookRepository;
 import repository.UserRepository;
-import utils.MyList;
+import utils.EmailValidateException;
+import utils.PasswordValidateException;
 import utils.UserValidation;
 
 import java.util.List;
@@ -25,28 +26,18 @@ public class MainServiceImpl implements MainService {
     }
 
     // Users
-
     @Override
-    public User createUser(String email, String password) {
+    public User createUser(String email, String password) throws EmailValidateException, PasswordValidateException {
 
-        // TODO: Переписать метод в процессе переписывания процессов валидации
-        // проверяем валидность email
-        if (!UserValidation.isEmailValid(email)) { // TODO: Переделать валидацию
-            return null;
-        }
-        // проверяем существует ли пользователь с таким email
+        UserValidation.validateEmail(email);
+        UserValidation.validatePassword(password);
+
         User user = userRepository.getUserByEmail(email);
 
-        if (user != null) {
-            return null;
+        if (user == null) {
+            return userRepository.addUser(email, password);
         }
-        // проверяем валидность пароля
-        if (!UserValidation.isPasswordValid(password)) { //TODO: Переделать валидацию
-            return null;
-        }
-        // создаем юзера
-
-        return userRepository.addUser(email, password);
+        return null;
     }
 
     @Override
@@ -66,11 +57,8 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
-    public User updatePassword(String newPassword) {
-        // валидность пароля TODO: переписать после исправления процесса валидации
-        if (!UserValidation.isPasswordValid(newPassword)) {
-            return null;
-        }
+    public User updatePassword(String newPassword) throws PasswordValidateException {
+        UserValidation.validatePassword(newPassword);
         return userRepository.updatePassword(activeUser.getEmail(), newPassword);
     }
 

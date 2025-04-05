@@ -14,7 +14,8 @@ import repository.BookRepository;
 import repository.BookRepositoryImpl;
 import repository.UserRepository;
 import repository.UserRepositoryImpl;
-import utils.MyList;
+import utils.EmailValidateException;
+import utils.PasswordValidateException;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -41,12 +42,12 @@ public class MainServiceTests {
     @MethodSource("testCreateUser")
     void testValidCreateUser(String email, String password) {
 
-        // int id = 6;
-        User user = service.createUser(email, password);
-        assertNotEquals(null, user); //Объект должен был создаться
-        assertEquals(email, user.getEmail()); // проверка email
-        assertEquals(password, user.getPassword()); //проверка пароля
-        //assertEquals(user.getUserId(),id);
+        assertDoesNotThrow(() -> {
+            User user = service.createUser(email, password);
+            assertNotEquals(null, user); //Объект должен был создаться
+            assertEquals(email, user.getEmail()); // проверка email
+            assertEquals(password, user.getPassword()); //проверка пароля
+        });
     }
 
     static Stream<Arguments> testCreateUser() {
@@ -57,23 +58,39 @@ public class MainServiceTests {
         );
     }
 
-    // Попытка заведения пользователя с некорректными данными
+    // Попытка заведения пользователя с некорректными email
     @ParameterizedTest
-    @MethodSource("testNotCreateUser")
-    void testNotValidCreateUser(String email, String password) {
+    @MethodSource("testNotEmailCreateUser")
+    void testNotValidEmailCreateUser(String email, String password) {
 
-        User user = service.createUser(email, password);
-
-        assertNull(user); //Пользователь не должен был создаться
-
+        assertThrows(EmailValidateException.class, () -> {
+            User user = service.createUser(email, password);
+            assertNull(user); //Пользователь не должен был создаться
+        });
     }
 
-    static Stream<Arguments> testNotCreateUser() {
+    static Stream<Arguments> testNotEmailCreateUser() {
         return Stream.of(
                 Arguments.of("test@@test.com", "P@ssw0rd"),
                 Arguments.of("1test2@mail.ru", "1qazXsw@"),
                 Arguments.of("test2@mailr.u", "1qazXsw@"),
-                Arguments.of("test2@mail.ru.", "1qazXsw@"),
+                Arguments.of("test2@mail.ru.", "1qazXsw@")
+        );
+    }
+
+    // Попытка заведения пользователя с некорректными password
+    @ParameterizedTest
+    @MethodSource("testNotPasswordCreateUser")
+    void testNotValidPasswordCreateUser(String email, String password) {
+
+        assertThrows(PasswordValidateException.class, () -> {
+            User user = service.createUser(email, password);
+            assertNull(user); //Пользователь не должен был создаться
+        });
+    }
+
+    static Stream<Arguments> testNotPasswordCreateUser() {
+        return Stream.of(
                 Arguments.of("richy@richy.de", "qwerty"),
                 Arguments.of("richy@richy.de", "QwertY"),
                 Arguments.of("richy@richy.de", "Q!ertY"),
@@ -81,6 +98,8 @@ public class MainServiceTests {
                 Arguments.of("richy@richy.de", "Qw1@r")
         );
     }
+
+
 
     // Тестируем метод getUserByEmail
     @ParameterizedTest
@@ -160,8 +179,10 @@ public class MainServiceTests {
 
         // Пользователь должен быть залогиненым, для смены пароля
         service.login(email, password); // логинемся
-        User user = service.updatePassword(newPassword);
-        assertEquals(newPassword, user.getPassword()); //проверка пароля
+        assertDoesNotThrow(() -> {
+            User user = service.updatePassword(newPassword);
+            assertEquals(newPassword, user.getPassword()); //проверка пароля
+        });
     }
 
     static Stream<Arguments> testUpdatePassword() {
@@ -179,9 +200,12 @@ public class MainServiceTests {
 
         // Пользователь должен быть залогиненым, для смены пароля
         service.login(email, password); // логинемся
-        User user = service.updatePassword(newPassword);
-        assertNull(user); //проверка пароля
 
+        assertThrows(PasswordValidateException.class, () -> {
+            User user = service.updatePassword(newPassword);
+            assertNull(user); //проверка пароля
+
+        });
     }
 
     static Stream<Arguments> testNotUpdatePassword() {

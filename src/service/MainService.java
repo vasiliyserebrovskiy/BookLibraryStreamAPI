@@ -2,7 +2,8 @@ package service;
 
 import model.Book;
 import model.User;
-import utils.MyList;
+import utils.EmailValidateException;
+import utils.PasswordValidateException;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface MainService {
 
     // Методу по работе с пользователем
 
-    User createUser(String email, String password); //++
+    User createUser(String email, String password) throws EmailValidateException, PasswordValidateException; //++
 
     User getUserByEmail(String email); //++
 
@@ -19,7 +20,7 @@ public interface MainService {
 
     List<User> getAllUsers(); // Для отображения всех зарегистрированных пользователей
 
-    User updatePassword(String newPassword); //++
+    User updatePassword(String newPassword)  throws PasswordValidateException; //++
 
     User deleteUser(String email);
 

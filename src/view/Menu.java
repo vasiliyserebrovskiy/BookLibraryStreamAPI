@@ -4,7 +4,8 @@ import model.Book;
 import model.Role;
 import model.User;
 import service.MainService;
-import utils.MyList;
+import utils.EmailValidateException;
+import utils.PasswordValidateException;
 
 import java.util.List;
 import java.util.Scanner;
@@ -12,7 +13,7 @@ import java.util.Scanner;
 public class Menu {
 
     private final MainService service;
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     //for warning and error printing
     public static final String COLOR_RED = "\u001B[31m";
     public static final String COLOR_YELLOW = "\u001B[33m";
@@ -138,7 +139,7 @@ public class Menu {
                 System.out.println("Введите название книги:");
                 String bookTitle = scanner.nextLine();
                 books = service.getBooksByTitle(bookTitle);
-                if (books.size() == 0) {
+                if (books.isEmpty()) {
                     printWarningMessage("\nКниг с таким названием в нашей библиотеке не найдено.");
                     waitRead();
                 } else {
@@ -150,7 +151,7 @@ public class Menu {
                 System.out.println("Введите автора книги:");
                 String bookAuthor = scanner.nextLine();
                 books = service.getBooksByAuthor(bookAuthor);
-                if (books.size() == 0) {
+                if (books.isEmpty()) {
                     printWarningMessage("\nКниг этого автора в нашей библиотеке не найдено.");
                     waitRead();
                 } else {
@@ -160,7 +161,7 @@ public class Menu {
                 break;
             case 4:
                 books = service.getAvailableBooks();
-                if (books.size() == 0) {
+                if (books.isEmpty()) {
                     printWarningMessage("\nСвободных книг в нашей библиотеке на данный момент нет.");
                     waitRead();
                 } else {
@@ -170,7 +171,7 @@ public class Menu {
                 break;
             case 5:
                 books = service.getBorrowedBooks();
-                if (books.size() == 0) {
+                if (books.isEmpty()) {
                     printWarningMessage("\nВсе книги в нашей библиотеке на данный момент доступны.");
                     waitRead();
                 } else {
@@ -180,7 +181,7 @@ public class Menu {
                 break;
             case 6:
                 books = service.getMyBooks();
-                if (books.size() == 0) {
+                if (books.isEmpty()) {
                     printWarningMessage("\nУ вас нет книг на руках.");
                     waitRead();
                 } else {
@@ -330,23 +331,26 @@ public class Menu {
                     String email = scanner.nextLine();
                     System.out.println("Введите ваш пароль:");
                     String password = scanner.nextLine();
-                    User user = service.createUser(email, password);
-                    if (user == null) {
-                        printErrorMessage("\nК сожалению, попытка Вышей регистрации не удалась.");
-                        printErrorMessage("Пользователь с таким E-mail уже зарегистрирован или");
-                        printErrorMessage("указанный Вами логин или пароль не соответствуют требованиям нашей системы!");
-                        printErrorMessage("---------- Наши требования для e-mail и пароля ----------");
-                        printOkMessage("E-mail должен быть указан в формате: myname@gmail.com");
-                        printOkMessage("Пароль должен удовлетворять следующим критериям:");
-                        printOkMessage("1 должен содержать не менее 8 символов");
-                        printOkMessage("2 должен содержать минимум одну маленькую букву");
-                        printOkMessage("3 должен содержать минимум одну большую букву");
-                        printOkMessage("4 должен содержать хотя бы одну цифру");
-                        printOkMessage("5 должен содержать хотя бы один спец символ из перечисленных: \"!#%$@&*()[],.-\"");
+                    try {
+                        User user = service.createUser(email, password);
+
+                        if (user == null) {
+                            printErrorMessage("\nК сожалению, попытка Вашей регистрации не удалась.");
+                            printErrorMessage("Пользователь с таким E-mail уже зарегистрирован.");
+                            printOkMessage("Пожалуйста, повторите попытку регистрации.");
+                            waitRead();
+                        } else {
+                            printOkMessage("\nПоздравляем, Вы успешно зарегистрировались в нашей библиотеке.");
+                            waitRead();
+                        }
+
+                    } catch (EmailValidateException e) {
+                        printErrorMessage("Неверный формат email: " + e.getMessage());
                         printOkMessage("Пожалуйста, повторите попытку регистрации.");
                         waitRead();
-                    } else {
-                        printOkMessage("\nПоздравляем, Вы успешно зарегистрировались в нашей библиотеке.");
+                    } catch (PasswordValidateException e) {
+                        printErrorMessage("Неверный формат пароля: " + e.getMessage());
+                        printOkMessage("Пожалуйста, повторите попытку регистрации.");
                         waitRead();
                     }
                 }
@@ -354,20 +358,12 @@ public class Menu {
             case 3:
                 System.out.println("\nПожалуйста введите новый пароль:");
                 String password = scanner.nextLine();
-                User user = service.updatePassword(password);
-                if (user == null) {
-                    printErrorMessage("К сожалению, указанный вами пароль не соответствует требованиям нашей системы!");
-                    printErrorMessage("---------- Наши требования паролю ----------");
-                    printOkMessage("Пароль должен удовлетворять следующим критериям:");
-                    printOkMessage("1 должен содержать не менее 8 символов");
-                    printOkMessage("2 должен содержать минимум одну маленькую букву");
-                    printOkMessage("3 должен содержать минимум одну большую букву");
-                    printOkMessage("4 должен содержать хотя бы одну цифру");
-                    printOkMessage("5 должен содержать хотя бы один спец символ из перечисленных: \"!#%$@&*()[],.-\"");
-                    printOkMessage("Пожалуйста, повторите попытку регистрации.");
-                    waitRead();
-                } else {
+                try {
+                    User user = service.updatePassword(password);
                     printOkMessage("\nВы успешно изменили свой пароль.");
+                    waitRead();
+                } catch (PasswordValidateException e) {
+                    printErrorMessage("К сожалению, вы ввели недопустимое значение пароля: " + e.getMessage());
                     waitRead();
                 }
                 break;
